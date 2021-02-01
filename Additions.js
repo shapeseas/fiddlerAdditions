@@ -28,7 +28,7 @@ function pivot(fiddler, groupByHeader, columnHeader, dataHeader) {
   
   //create fiddler from pivotData
   //move the id column to the front of the fiddler
-  var pivotedFiddler = new cUseful.Fiddler().setData(pivotedData);
+  var pivotedFiddler = new bmFiddler.Fiddler().setData(pivotedData);
   pivotedFiddler.moveColumn(groupByHeader, pivotedFiddler.getHeaderByIndex(0));
   
   return pivotedFiddler;
@@ -67,7 +67,7 @@ function unpivot(fiddler, columnStart, columnEnd, outputHeaders, columnsToRetain
     })
   })
   
-  return new cUseful.Fiddler().setValues(outputValues);
+  return new bmFiddler.Fiddler().setValues(outputValues);
 }
 
 /**
@@ -76,19 +76,19 @@ function unpivot(fiddler, columnStart, columnEnd, outputHeaders, columnsToRetain
 * @param {Fiddler} targetFiddler the fiddler being changed with new values, potentially new rows, columns
 * @param {Fiddler} updateFiddler the fiddler driving the updates
 * @param {String} key the column in targetFiddler and updateFiddler to compare, similar to a foreign key
-* @param {boolean} appendRowIfMissing if the targetFiddler should be appended with rows from updateFiddler that don't have a matching key
-* @param {boolean} appendColIfMissing if the targetFiddler should be appended with columns from updateFiddler that aren't in targetFiddler
+* @param {boolean} appendIfMissingRow if the targetFiddler should be appended with rows from updateFiddler that don't have a matching key
+* @param {boolean} appendIfMissingCol if the targetFiddler should be appended with columns from updateFiddler that aren't in targetFiddler
 * @return {Fiddler} the targetFiddler with updates
 */
-function join(targetFiddler, updateFiddler, key, appendRowIfMissing, appendColIfMissing) {
-  appendRowIfMissing = appendRowIfMissing || false;
-  appendColIfMissing = appendColIfMissing || false;
+function join(targetFiddler, updateFiddler, key, appendIfMissingRow, appendIfMissingCol) {
+  appendIfMissingRow = appendIfMissingRow || false;
+  appendIfMissingCol = appendIfMissingCol || false;
   
   var targetHeaders = targetFiddler.getHeaders();
   var updateHeaders = updateFiddler.getHeaders();
   
   //add columns to targetFiddler that are in updateFiddler
-  if(appendColIfMissing){
+  if(appendIfMissingCol){
     updateHeaders.forEach(function(updateHeader){
       if(targetHeaders.indexOf(updateHeader) === -1) targetFiddler.insertColumn(updateHeader)
     })
@@ -96,7 +96,7 @@ function join(targetFiddler, updateFiddler, key, appendRowIfMissing, appendColIf
   }
   
   //remove columns from updateFiddler that aren't in targetFiddler
-  //only necessary for appendRowIfMissing which needs an exact match
+  //only necessary for appendIfMissingRow which needs an exact match
   updateFiddler = reduceHeaders(updateFiddler,targetFiddler);
   updateHeaders = updateFiddler.getHeaders();
   
@@ -116,7 +116,7 @@ function join(targetFiddler, updateFiddler, key, appendRowIfMissing, appendColIf
           targetFiddler.getData()[lastMatch][targetHeader] = updateRow[targetHeader];
         }
       })
-    } else if (appendRowIfMissing){
+    } else if (appendIfMissingRow){
       targetHeaders.forEach(function(targetHeader){   
         if(updateRow[targetHeader] === undefined) { 
           updateRow[targetHeader] = null
@@ -137,8 +137,11 @@ function join(targetFiddler, updateFiddler, key, appendRowIfMissing, appendColIf
 * @return {Fiddler} a new fiddler that has targetFiddler data but only has headers that are in updateFiddler
 */
 function reduceHeaders(targetFiddler, updateFiddler){
+  //this no longer works must intialize then set values
+  //var outputFiddler = new bmFiddler.Fiddler().setValues(targetFiddler.createValues());
   //create new fiddler to avoid side effects
-  var outputFiddler = new cUseful.Fiddler().setValues(targetFiddler.createValues());
+  var outputFiddler = new bmFiddler.Fiddler();
+  outputFiddler.setValues(targetFiddler.createValues());
   var updateHeaders = updateFiddler.getHeaders();
   
   //remove columns not in targetFiddler
@@ -151,7 +154,7 @@ function reduceHeaders(targetFiddler, updateFiddler){
     outputFiddler.moveColumn(header)
   })
   
-  if(outputFiddler.getHeaders().length === 0) throw new Error("targetFiddler has no data left after reducing headers to match updateFiddler");
+  if(outputFiddler.getHeaders().length === 0) throw new Error("targetFiddler has no data left after reducing headers to " + updateFiddler.getHeaders());
   
   return outputFiddler
 }

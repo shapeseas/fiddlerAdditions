@@ -1,12 +1,23 @@
 {
   "timeZone": "America/New_York",
   "dependencies": {
-    "libraries": [{
-      "userSymbol": "cUseful",
-      "libraryId": "1EbLSESpiGkI3PYmJqWh3-rmLkYKAtCNPi1L2YCtMgo2Ut8xMThfJ41Ex",
-      "version": "121"
-    }]
+    "libraries": [
+      {
+        "userSymbol": "cUseful",
+        "libraryId": "1EbLSESpiGkI3PYmJqWh3-rmLkYKAtCNPi1L2YCtMgo2Ut8xMThfJ41Ex",
+        "version": "125"
+      },
+      {
+        "userSymbol": "bmFiddler",
+        "version": "4",
+        "libraryId": "13EWG4-lPrEf34itxQhAQ7b9JEbmCBfO8uE4Mhr99CHi3Pw65oxXtq-rU"
+      }
+    ]
   },
   "exceptionLogging": "STACKDRIVER",
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/script.send_mail"
+  ],
   "runtimeVersion": "V8"
 }
